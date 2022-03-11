@@ -165,14 +165,14 @@ server <- function(input, output) {
     data2 <- data %>%
       filter(data$distrito_nombre %in% input$distrito) %>%
       group_by(barrio_nombre) %>%
-      summarise(total = sum(val_cat_barrio)) %>%
+      summarise(total = mean(val_cat_barrio)) %>%
       arrange(desc(total))
     
     grafica <- ggplot(data=data2, aes(x=reorder(barrio_nombre, total), y=total)) +
       geom_bar(stat="identity", width=0.5, fill="steelblue") +
       geom_text(aes(label=paste0("€ ", format(round(total/1e6, 1), trim=TRUE), "M")), position=position_dodge(width=0.9), vjust=0.3, hjust=-0.2) +
       coord_flip() +
-      ylab("Valor Catastro") +
+      ylab("Valor medio Catastro") +
       xlab("Barrios") +
       ggtitle("Valor Catastro por Barrio") +
       theme_minimal()
