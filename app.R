@@ -139,7 +139,7 @@ server <- function(input, output) {
     }
     
     infoBox("Valor medio", 
-            paste0(format(round(data2 / 1e6, 1), trim = TRUE), "M"), 
+            paste0("€ ", format(round(data2 / 1e6, 1), trim = TRUE), "M"), 
             icon = icon("credit-card"),
             color = "purple"
     )
