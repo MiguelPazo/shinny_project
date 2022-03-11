@@ -47,23 +47,14 @@ data <- transform(data, sup_suelo_barrio = as.integer(sup_suelo_barrio))
 data <- transform(data, sup_suelo_media  = as.integer(sup_suelo_media))
 data <- transform(data, val_cat_barrio = as.double(val_cat_barrio))
 data <- transform(data, val_cat_medio = as.double(val_cat_medio))
-data
 
 stDistritos <- data %>%
   group_by(distrito_cod) %>%
-  slice(1)
+  slice(1) %>%
+  arrange(distrito_nombre)
   
 vDistrictos <- as.vector(stDistritos$distrito_nombre)
 
-# distrito = c("Arganzuela", "Retiro")
-# 
-# data2 <- data %>%
-#   filter(data$distrito_nombre %in% distrito) %>%
-#   summarise(total = mean(anio_cons_medio, na.rm=TRUE))
-# 
-# round(data2, digits = 0)
-# 
-# data2
 
 ui <- dashboardPage(
   dashboardHeader(title = "Grupo N"),
@@ -71,11 +62,10 @@ ui <- dashboardPage(
     checkboxGroupInput(inputId = "distrito", 
                        label = "Distritos:",
                       choices =  vDistrictos,
-                      selected = vDistrictos
+                      selected = c("Arganzuela")
                       )
   ),
   dashboardBody(
-    # Boxes need to be put in a row (or column)
     fluidRow(
       infoBoxOutput("inmueblesBario"),
       infoBoxOutput("anioMedio"),
@@ -83,7 +73,12 @@ ui <- dashboardPage(
     ),
     
     fluidRow(
-      
+      box(plotOutput("plot1")),
+      box(plotOutput("plot2"))
+    ),
+    
+    fluidRow(
+      DTOutput('tablaDatos')
     )
   )
 )
@@ -139,10 +134,59 @@ server <- function(input, output) {
     }
     
     infoBox("Valor medio", 
-            paste0("€ ", format(round(data2 / 1e6, 1), trim = TRUE), "M"), 
+            paste0("€ ", format(round(data2/1e6, 1), trim=TRUE), "M"), 
             icon = icon("credit-card"),
             color = "purple"
     )
+  })
+  
+  # Gráfica 1
+  output$plot1 <- renderPlot({
+    data2 <- data %>%
+      filter(data$distrito_nombre %in% input$distrito) %>%
+      group_by(barrio_nombre) %>% 
+      summarise(total = sum(inmuebles_barrio)) %>% 
+      arrange(desc(total))
+    
+    grafica <- ggplot(data=data2, aes(x=reorder(barrio_nombre, total), y=total)) + 
+      geom_bar(stat="identity", width=0.5, fill="steelblue") +
+      coord_flip() +
+      geom_text(aes(label=total), position=position_dodge(width=0.9), vjust=0.3, hjust=-0.5) +
+      ylab("Cantidad de Inmuebles") +
+      xlab("Barrios") +
+      ggtitle("Innmuebles por Barrio") +
+      theme_minimal()
+    
+    grafica
+  })
+  
+  # Gráfica 2
+  output$plot2 <- renderPlot({
+    data2 <- data %>%
+      filter(data$distrito_nombre %in% input$distrito) %>%
+      group_by(barrio_nombre) %>%
+      summarise(total = sum(val_cat_barrio)) %>%
+      arrange(desc(total))
+    
+    grafica <- ggplot(data=data2, aes(x=reorder(barrio_nombre, total), y=total)) +
+      geom_bar(stat="identity", width=0.5, fill="steelblue") +
+      geom_text(aes(label=paste0("€ ", format(round(total/1e6, 1), trim=TRUE), "M")), position=position_dodge(width=0.9), vjust=0.3, hjust=-0.2) +
+      coord_flip() +
+      ylab("Valor Catastro") +
+      xlab("Barrios") +
+      ggtitle("Valor Catastro por Barrio") +
+      theme_minimal()
+    
+    grafica
+  })
+  
+  # Tabla
+  output$tablaDatos <- renderDT({
+    data2 <- data %>%
+      filter(data$distrito_nombre %in% input$distrito) %>%
+      arrange(distrito_nombre)
+    
+    datatable(data2)
   })
 }
 
