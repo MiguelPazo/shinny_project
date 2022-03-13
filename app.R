@@ -33,6 +33,8 @@ data <- read.csv(file=file.path(file), header=T, sep=";", encoding = "UTF-8")
 data$val_cat_barrio <- gsub(" €", "", data$val_cat_barrio)
 data$val_cat_medio <- gsub(" €", "", data$val_cat_medio)
 
+data$barrio_nombre <- gsub(" ", "-", data$barrio_nombre)
+
 data$val_cat_barrio <- gsub(",", ".", data$val_cat_barrio)
 data$val_cat_medio  <- gsub(",", ".", data$val_cat_medio)
 
@@ -48,28 +50,45 @@ data <- transform(data, sup_suelo_media  = as.integer(sup_suelo_media))
 data <- transform(data, val_cat_barrio = as.double(val_cat_barrio))
 data <- transform(data, val_cat_medio = as.double(val_cat_medio))
 
+data 
+
+stUso <- data %>%
+  group_by(uso_deno) %>%
+  slice(1) %>%
+  arrange(uso_deno)
+
 stDistritos <- data %>%
   group_by(distrito_cod) %>%
   slice(1) %>%
   arrange(distrito_nombre)
-  
+
+vUso <- as.vector(stUso$uso_deno)
 vDistrictos <- as.vector(stDistritos$distrito_nombre)
 
 
 ui <- dashboardPage(
   dashboardHeader(title = "Grupo N"),
   dashboardSidebar(
-    checkboxGroupInput(inputId = "distrito", 
-                       label = "Distritos:",
-                      choices =  vDistrictos,
-                      selected = c("Arganzuela")
-                      )
+    selectInput(
+      inputId = "uso",
+      label="Uso Catastral:",
+      choices= vUso,
+      selected = c("Comercial"),
+      multiple = FALSE
+    ),
+    
+    radioButtons(inputId = "distrito", 
+                 label = "Distritos:",
+                 choices =  vDistrictos,
+                 selected = c("Chamberí")
+    )
   ),
   dashboardBody(
     fluidRow(
+      infoBoxOutput("valorMedio"),
       infoBoxOutput("inmueblesBario"),
-      infoBoxOutput("anioMedio"),
-      infoBoxOutput("valorMedio")
+      infoBoxOutput("anioMedio")
+      
     ),
     
     fluidRow(
@@ -93,7 +112,7 @@ server <- function(input, output) {
     
     if (!is.null(input$distrito)) {
       data2 <- data %>%
-        filter(data$distrito_nombre %in% input$distrito) %>%
+        filter(data$uso_deno == input$uso & data$distrito_nombre == input$distrito) %>%
         summarise(total = sum(inmuebles_barrio))
     }
   
@@ -109,7 +128,7 @@ server <- function(input, output) {
     
     if (!is.null(input$distrito)) {
       data2 <- data %>%
-        filter(data$distrito_nombre %in% input$distrito) %>%
+        filter(data$uso_deno == input$uso & data$distrito_nombre == input$distrito) %>%
         summarise(total = mean(anio_cons_medio, na.rm=TRUE))
       
       data2 <- round(data2, digits = 0)
@@ -127,7 +146,7 @@ server <- function(input, output) {
     
     if (!is.null(input$distrito)) {
       data2 <- data %>%
-        filter(data$distrito_nombre %in% input$distrito) %>%
+        filter(data$uso_deno == input$uso & data$distrito_nombre == input$distrito) %>%
         summarise(total = mean(val_cat_barrio, na.rm=TRUE))
       
       data2 <- round(data2, digits = 2)
@@ -143,18 +162,14 @@ server <- function(input, output) {
   # Gráfica 1
   output$plot1 <- renderPlot({
     data2 <- data %>%
-      filter(data$distrito_nombre %in% input$distrito) %>%
-      group_by(barrio_nombre) %>% 
-      summarise(total = sum(inmuebles_barrio)) %>% 
-      arrange(desc(total))
+      filter(data$uso_deno == input$uso & data$distrito_nombre == input$distrito) %>%
+      arrange(desc(val_cat_medio))
     
-    grafica <- ggplot(data=data2, aes(x=reorder(barrio_nombre, total), y=total)) + 
-      geom_bar(stat="identity", width=0.5, fill="steelblue") +
-      coord_flip() +
-      geom_text(aes(label=total), position=position_dodge(width=0.9), vjust=0.3, hjust=-0.5) +
-      ylab("Cantidad de Inmuebles") +
-      xlab("Barrios") +
-      ggtitle("Innmuebles por Barrio") +
+    grafica <- ggplot(data=data2, mapping = aes_string(data2$barrio_cod, data2$val_cat_medio)) + 
+      geom_point(mapping = aes_string(color = data2$barrio_cod), size=data2$inmuebles_barrio/100) + 
+      xlab("Códigos de Barrios") +
+      ylab("Valor medio catastral") +
+      labs(title="Valor / Número de inmuebles por barrio", subtitle="El tamaño de los puntos indica el número de inmuebles por barrio") +
       theme_minimal()
     
     grafica
@@ -163,28 +178,28 @@ server <- function(input, output) {
   # Gráfica 2
   output$plot2 <- renderPlot({
     data2 <- data %>%
-      filter(data$distrito_nombre %in% input$distrito) %>%
-      group_by(barrio_nombre) %>%
-      summarise(total = mean(val_cat_barrio)) %>%
-      arrange(desc(total))
+      filter(data$uso_deno == input$uso & data$distrito_nombre == input$distrito) %>%
+      arrange(desc(anio_cons_medio))
     
-    grafica <- ggplot(data=data2, aes(x=reorder(barrio_nombre, total), y=total)) +
+    grafica <- ggplot(data=data2, aes(x=reorder(barrio_nombre, anio_cons_medio), y=anio_cons_medio)) +
       geom_bar(stat="identity", width=0.5, fill="steelblue") +
-      geom_text(aes(label=paste0("€ ", format(round(total/1e6, 1), trim=TRUE), "M")), position=position_dodge(width=0.9), vjust=0.3, hjust=-0.2) +
+      geom_text(aes(label=paste0(anio_cons_medio)), position=position_dodge(width=0.9), vjust=0.3, hjust=1.5) +
       coord_flip() +
-      ylab("Valor medio Catastro") +
+      ylab("Año") +
       xlab("Barrios") +
-      ggtitle("Valor Catastro por Barrio") +
-      theme_minimal()
+      ggtitle("Año medio de construcción por barrio")
     
-    grafica
-  })
+    grafica  })
   
   # Tabla
   output$tablaDatos <- renderDT({
     data2 <- data %>%
-      filter(data$distrito_nombre %in% input$distrito) %>%
+      filter(data$uso_deno == input$uso & data$distrito_nombre == input$distrito) %>%
+      select(distrito_nombre, barrio_cod, barrio_nombre, uso_deno, inmuebles_barrio, anio_cons_medio, val_cat_barrio, val_cat_medio) %>%
       arrange(distrito_nombre)
+    
+    colnames(data2) <- c("Distrito", "Barrio Codigo", "Barrio", "Uso", "Cantidad Inmuebles", "Año medio de construcción", "Valor catastro", "Valor catastro medio")
+    
     
     datatable(data2)
   })

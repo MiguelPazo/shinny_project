@@ -1,4 +1,4 @@
-datos_anio;clase_inmueble;distrito_cod;distrito_nombre;barrio_cod;barrio_nombre;uso_cod;uso_deno;inmuebles_barrio;anio_cons_medio;sup_cons_barrio;sup_cons_media;sup_suelo_barrio;sup_suelo_media;val_cat_barrio;val_cat_medio
+﻿datos_anio;clase_inmueble;distrito_cod;distrito_nombre;barrio_cod;barrio_nombre;uso_cod;uso_deno;inmuebles_barrio;anio_cons_medio;sup_cons_barrio;sup_cons_media;sup_suelo_barrio;sup_suelo_media;val_cat_barrio;val_cat_medio
 2018;UR;02;Arganzuela;026;Palos de Moguer;E;Cultural;18;1965,00;95010,00;5278,00;;;89637781,99 €;4979876,78 €
 2018;UR;02;Arganzuela;026;Palos de Moguer;G;Ocio y Hostelería;19;1941,00;39645,00;2087,00;;;55485226,87 €;2920275,10 €
 2018;UR;02;Arganzuela;026;Palos de Moguer;I;Industrial;40;1967,00;52397,00;1310,00;;;46361258,63 €;1159031,47 €
@@ -159,7 +159,7 @@ datos_anio;clase_inmueble;distrito_cod;distrito_nombre;barrio_cod;barrio_nombre;
 2018;UR;02;Arganzuela;022;Acacias;A;Almacén-Estacionamiento;10466;1992,00;474632,00;45,00;;;224176774,28 €;21419,53 €
 2018;UR;02;Arganzuela;022;Acacias;C;Comercial;1201;1974,00;180979,00;151,00;;;250960116,51 €;208959,30 €
 2018;UR;02;Arganzuela;022;Acacias;E;Cultural;30;1980,00;29396,00;980,00;;;30952840,03 €;1031761,33 €
-2018;UR;02;Arganzuela;022;Acacias;G;Ocio y Hostelería;2;996,00;6640,00;3320,00;;;9885587,69 €;4942793,84 €
+2018;UR;02;Arganzuela;022;Acacias;G;Ocio y Hostelería;2;1996,00;6640,00;3320,00;;;9885587,69 €;4942793,84 €
 2018;UR;02;Arganzuela;022;Acacias;I;Industrial;40;1977,00;19762,00;494,00;;;14278611,30 €;356965,28 €
 2018;UR;02;Arganzuela;022;Acacias;K;Deportivo;11;1989,00;18479,00;1680,00;;;8268625,98 €;751693,27 €
 2018;UR;02;Arganzuela;022;Acacias;M;Suelos sin edificar, obras de urbanización y jardinería;16;;;;202234,00;12640,00;10213819,00 €;638363,69 €
