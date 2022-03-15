@@ -130,11 +130,11 @@ server <- function(input, output) {
         summarise(total = sum(inmuebles_barrio))
     }
     
-    data2 <- format(round(as.numeric(data2), 1), nsmall=1, big.mark=",")
+    data2 <- format(round(as.numeric(data2), 0), nsmall=0, big.mark=",")
   
     infoBox("Inmuebles por barrio", 
             data2, 
-            icon = icon("credit-card"),
+            icon = icon("fa-solid fa-archway"),
             color = "purple"
     )
   })
@@ -152,7 +152,7 @@ server <- function(input, output) {
     
     infoBox("Año medio de construcción", 
             data2, 
-            icon = icon("credit-card"),
+            icon = icon("fa-solid fa-calendar"),
             color = "purple"
     )
   })
@@ -170,7 +170,7 @@ server <- function(input, output) {
     
     infoBox("Valor medio en miles de €", 
             paste0("€ ", format(round(data2/1e3, 1), trim=TRUE), "M"), 
-            icon = icon("credit-card"),
+            icon = icon("glyphicon glyphicon-eur"),
             color = "purple"
     )
   })
