@@ -1,4 +1,10 @@
 #############################
+# URL Pública del Dashboard
+#############################
+# https://miguelpazo.shinyapps.io/App1/
+
+
+#############################
 # Librerias a Instalar
 #############################
 # Instalar librerias
@@ -71,7 +77,7 @@ vDistrictos <- as.vector(stDistritos$distrito_nombre)
 
 
 ui <- dashboardPage(
-  dashboardHeader(title = "Grupo 6"),
+  dashboardHeader(title = "Grupo 7"),
   dashboardSidebar(
     selectInput(
       inputId = "uso",
